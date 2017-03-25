@@ -1,0 +1,17 @@
+sudo: required
+
+language: go
+
+go:
+  - 1.7
+
+services:
+  - docker
+
+script:
+  - go build -a -o phpfpm_exporter
+  - docker build -t gsosa/phpfpm_exporter .
+
+after_success:
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  - docker push gsosa/phpfpm_exporter
