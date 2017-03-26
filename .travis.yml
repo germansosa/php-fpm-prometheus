@@ -5,13 +5,18 @@ language: go
 go:
   - 1.7
 
+branches:
+  only:
+    - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
+
 services:
   - docker
 
 script:
-  - go build -a -o phpfpm_exporter
-  - docker build -t gsosa/phpfpm_exporter .
+  - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GOARM=6 go build -a -installsuffix cgo -ldflags '-w -s' -o phpfpm_exporter
+  - docker build -t gsosa/php-fpm_exporter:${TRAVIS_TAG} -t gsosa/phpfpm_exporter:latest .
 
 after_success:
-  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  - docker push gsosa/phpfpm_exporter
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+  - docker push gsosa/php-fpm_exporter:${TRAVIS_TAG}
+  - docker push gsosa/php-fpm_exporter:latest
