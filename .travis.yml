@@ -7,7 +7,7 @@ go:
 
 branches:
   only:
-    - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
+    - /^\d+\.\d+(\.\d+)?(-\S*)?$/
 
 services:
   - docker
