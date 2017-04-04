@@ -15,7 +15,9 @@ services:
 
 script:
   - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GOARM=6 go build -a -installsuffix cgo -ldflags '-w -s' -o phpfpm_exporter
-  - docker build -t gsosa/php-fpm_exporter:${TRAVIS_TAG} -t gsosa/php-fpm_exporter:latest -t gsosa/php-fpm_exporter:master .
+  - docker build -t gsosa/php-fpm_exporter:master .
+  - if [ -n "${TRAVIS_TAG}" ]; then docker tag gsosa/php-fpm_exporter:master gsosa/php-fpm_exporter:${TRAVIS_TAG} ; fi
+  - if [ -n "${TRAVIS_TAG}" ]; then docker tag gsosa/php-fpm_exporter:master gsosa/php-fpm_exporter:latest ; fi
 
 after_success:
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
