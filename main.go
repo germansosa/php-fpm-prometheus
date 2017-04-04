@@ -41,9 +41,11 @@ func main() {
 			ReadTimeout: time.Duration(5) * time.Second,
 			Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				env := make(map[string]string)
-				env["SCRIPT_FILENAME"] = "fpm-status"
+				env["SCRIPT_NAME"] = "/status"
+				env["SCRIPT_FILENAME"] = "/status"
 
 				fcgi, err := fcgiclient.Dial(fpmStatusHost, fpmStatusPort)
+				defer fcgi.Close();
 
 				if err != nil {
 					log.Println(err)
@@ -63,16 +65,18 @@ func main() {
 					return
 				}
 
-				if resp.StatusCode != http.StatusOK {
-					log.Println("php-fpm status code is not OK.")
-					scrapeFailures = scrapeFailures + 1
-					x := strconv.Itoa(scrapeFailures)
-					NewMetricsFromMatches([][]string{{"scrape failure:", "scrape failure", x}}).WriteTo(w)
-					return
-				}
+				//if resp.StatusCode != http.StatusOK {
+				//	log.Println("php-fpm status code is not OK.")
+				//	scrapeFailures = scrapeFailures + 1
+				//	x := strconv.Itoa(scrapeFailures)
+				//	NewMetricsFromMatches([][]string{{"scrape failure:", "scrape failure", x}}).WriteTo(w)
+				//	return
+				//}
 
 				body, err := ioutil.ReadAll(resp.Body)
+
 				if err != nil {
+					log.Println("3")
 					log.Println(err)
 					scrapeFailures = scrapeFailures + 1
 					x := strconv.Itoa(scrapeFailures)
