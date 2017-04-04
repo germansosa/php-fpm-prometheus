@@ -17,6 +17,6 @@ script:
   - docker build -t gsosa/php-fpm_exporter:${TRAVIS_TAG} -t gsosa/php-fpm_exporter:latest .
 
 after_success:
-  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
   - docker push gsosa/php-fpm_exporter:${TRAVIS_TAG}
   - docker push gsosa/php-fpm_exporter:latest

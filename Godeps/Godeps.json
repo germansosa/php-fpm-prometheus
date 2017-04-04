@@ -1,0 +1,19 @@
+{
+	"ImportPath": "php",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v79",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/tomasen/fcgi_client",
+			"Rev": "b116e704d8674fccc547f9a4d197d6a7bd22ca61"
+		},
+		{
+			"ImportPath": "gopkg.in/tylerb/graceful.v1",
+			"Comment": "v1.2.15",
+			"Rev": "4654dfbb6ad53cb5e27f37d99b02e16c1872fbbb"
+		}
+	]
+}
