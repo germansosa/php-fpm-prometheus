@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strconv"
 	"time"
@@ -14,22 +15,35 @@ import (
 
 var (
 	statusLineRegexp = regexp.MustCompile(`(?m)^(.*):\s+(.*)$`)
-	fpmStatusHost    = ""
-	fpmStatusPort    = ""
+	fpmScheme        = ""
+	fpmPath          = ""
 )
 
 func main() {
-	urlhost := flag.String("status-host", "", "PHP-FPM status host")
-	urlport := flag.String("status-port", "9000", "PHP-FPM status port")
-	addr := flag.String("addr", "0.0.0.0:8080", "IP/port for the HTTP server")
+	fpmAddress := flag.String("fpm-address", "", "PHP-FPM address or unix path. Ej: tcp://127.0.0.1:9000 or unix:/path/to/unix.sock")
+	statusPath := flag.String("status-path", "/status", "PHP-FPM status path")
+	addr := flag.String("addr", "0.0.0.0:9237", "IP/port for the HTTP server")
 	flag.Parse()
 
-	if *urlhost == "" {
-		log.Fatal("The status-host flags is required.")
-	} else {
-		fpmStatusHost = *urlhost
+	if *fpmAddress == "" {
+		log.Fatal("The fpm-address flags is required.")
 	}
-	fpmStatusPort = *urlport
+
+	parsedURI, err := url.ParseRequestURI(*fpmAddress)
+	if err != nil {
+		log.Fatalf("Cant parse fpm-address: %s", err)
+	}
+
+	fpmScheme = parsedURI.Scheme
+
+	switch fpmScheme {
+	case "unix":
+		fpmPath = parsedURI.RequestURI()
+	case "tcp":
+		fpmPath = parsedURI.Hostname() + ":" + parsedURI.Port()
+	default:
+		log.Fatalf("Unsupported protocol: %s", fpmScheme)
+	}
 
 	scrapeFailures := 0
 
@@ -41,11 +55,11 @@ func main() {
 			ReadTimeout: time.Duration(5) * time.Second,
 			Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				env := make(map[string]string)
-				env["SCRIPT_NAME"] = "/status"
-				env["SCRIPT_FILENAME"] = "/status"
+				env["SCRIPT_NAME"] = *statusPath
+				env["SCRIPT_FILENAME"] = *statusPath
 
-				fcgi, err := fcgiclient.Dial(fpmStatusHost, fpmStatusPort)
-				defer fcgi.Close();
+				fcgi, err := fcgiclient.Dial(fpmScheme, fpmPath)
+				defer fcgi.Close()
 
 				if err != nil {
 					log.Println(err)
@@ -96,6 +110,7 @@ func main() {
 		},
 	}
 
+	log.Printf("Server started on %s", *addr)
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}
