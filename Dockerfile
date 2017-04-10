@@ -15,4 +15,4 @@ FROM busybox
 #   nobody:nobody
 USER 65534:65534
 COPY phpfpm_exporter /
-ENTRYPOINT ["/phpfpm_exporter"]
+ENTRYPOINT ["/php-fpm_exporter"]
