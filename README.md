@@ -25,7 +25,7 @@ Usage of ./php-fpm_exporter:
 $ ./php-fpm_prometheus --fpm-address "tcp://127.0.0.1:9000" -status-path "/status" -addr "127.0.0.1:8080"
 ```
 
-Finally, point Prometheus to `http://127.0.0.1:9237/metrics`.
+Finally, point Prometheus to `http://127.0.0.1:8080/metrics`.
 
 ## Contributing
 
